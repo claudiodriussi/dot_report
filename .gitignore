@@ -1,0 +1,9 @@
+.dart_tool/
+.packages
+
+analysis_options.yaml
+pubspec.lock
+
+build/
+doc/
+_notes/

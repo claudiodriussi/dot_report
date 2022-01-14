@@ -1,0 +1,73 @@
+---
+config:
+  name: Test script
+  description: invoice
+  title: Invoice
+  page_length: 48
+  header: [header, header1]
+  footer: ["footer", "footer1"]
+  escape: '\~'
+  placeholder: "x.@"
+  cut_rows: 3
+
+# recognized commands
+# B Bold
+# U Underline
+# u Underline2
+# D Double size
+# W Double width
+# H Double height
+# E Reverse mode
+
+# 0-9 N. of decimals
+# S Space if zero
+
+# L left alignment
+# R Right alignment
+
+bands:
+  header:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+      \xxxxxxxxxxx\xxxxxxxxx        to the end of line
+      ================================================
+
+    values:
+      - ["B", "'My name'+' is very long'"]
+      - ["DL", "3+5"]
+
+  band:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      \xxxxx \xxxxxxxxxxxxxxxxxxx \xx.xx \xx.xx \xx.xx
+
+    values:
+      - ["ED", "scu"]
+      - ["W", "description"]
+      - ["", "qt"]
+      - ["", "price"]
+      - ["", "qt*price"]
+
+  description:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    values:
+      - ["", "description"]
+
+  footer:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+                                   Total  |\xxxxx.xxx|
+      ================================================
+
+      |
+    values:
+      - ["U3", "total"]

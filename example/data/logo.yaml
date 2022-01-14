@@ -1,0 +1,23 @@
+---
+bands:
+  logo:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      \       \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+          Your address, your city and your country
+
+      \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      info@yourcomany.com
+
+      |
+
+    # the last pipe character let you to add blank lines at the end of image
+
+    values:
+      - ["", "''"] # this is a trick to let yaml to handle leading spaces
+      - ["BD", "'YOUR COMPANY NAME'"]
+      - ["BH", "'ADD SOME INFORMATION  ABOUT YOU AND YOUR COMPANY'"]
+      - ["BH", "'COMMERCIO MOZZARELLA E PRODOTTI PER RISTORAZIONE'"]
+      - ["B", "'YOUR FISCAL DATA'"]
