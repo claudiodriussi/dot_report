@@ -3,6 +3,11 @@ import 'package:dot_report/dot_report.dart';
 import 'package:string_eval/string_eval.dart';
 import 'package:expressions/expressions.dart';
 
+/// test dot_report with two expression evaluators.
+///
+/// string_eval is nice and elegant, but is hard to use in flutter, so
+/// expressons is to be preferred
+///
 void main(List<String> arguments) async {
   print(DateTime.now().millisecondsSinceEpoch);
   await testEval();
@@ -16,14 +21,11 @@ Future<String> readFile(String fileName) async {
   return await f.readAsString();
 }
 
-// ---------------------------------------------------------------------------
-
+/// test with expression evaluator
+///
 Future<void> testExpression() async {
   DotReport rep;
   Map<String, dynamic> context = {};
-
-  String str = await readFile('./data/test.yaml');
-  String logo = await readFile('./data/logo.yaml');
 
   ExpressionEvaluator evaluator = const ExpressionEvaluator();
 
@@ -38,7 +40,13 @@ Future<void> testExpression() async {
     return result;
   }
 
-  rep = DotReport(str, eval: evalExpression, addScripts: [logo]);
+  rep = DotReport(
+    [
+      await readFile('./data/test.yaml'),
+      await readFile('./data/logo.yaml'),
+    ],
+    eval: evalExpression,
+  );
   rep.charReplacer = {
     'è': "e'",
     'à': "a'",
@@ -60,11 +68,11 @@ Future<void> testExpression() async {
 
   await rep.print('band');
   await rep.close();
-//  print(rep.bytes);
+  print(rep.bytes);
 }
 
-// ---------------------------------------------------------------------------
-
+/// test with string_eval evaluator
+///
 Future<void> testEval() async {
   DotReport rep;
   Map<String, dynamic> data = {};
@@ -80,8 +88,13 @@ Future<void> testEval() async {
     return result;
   }
 
-  String str = await readFile('./test/script1.yaml');
-  rep = DotReport(str, eval: evalStr);
+  rep = DotReport(
+    [
+      await readFile('./data/test.yaml'),
+      await readFile('./data/logo.yaml'),
+    ],
+    eval: evalStr,
+  );
   rep.charReplacer = {
     'è': "e'",
     'à': "a'",
@@ -104,5 +117,5 @@ Future<void> testEval() async {
 
   await rep.print('band');
   await rep.close();
-//  print(rep.bytes);
+  print(rep.bytes);
 }

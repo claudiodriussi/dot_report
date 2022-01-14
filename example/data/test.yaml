@@ -7,7 +7,7 @@ config:
   header: [header, header1]
   footer: ["footer", "footer1"]
   escape: '\~'
-  placeholder: "x.@"
+  placeholders: "x.@"
   cut_rows: 3
 
 # recognized commands
