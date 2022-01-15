@@ -10,15 +10,90 @@ import 'package:expressions/expressions.dart';
 ///
 void main(List<String> arguments) async {
   print(DateTime.now().millisecondsSinceEpoch);
-  await testEval();
+  await testCallback();
   print(DateTime.now().millisecondsSinceEpoch);
   await testExpression();
+  print(DateTime.now().millisecondsSinceEpoch);
+  await testEval();
   print(DateTime.now().millisecondsSinceEpoch);
 }
 
 Future<String> readFile(String fileName) async {
   File f = File(fileName);
   return await f.readAsString();
+}
+
+/// test with expression evaluator and callbacks usage
+///
+Future<void> testCallback() async {
+  DotReport rep;
+  Map<String, dynamic> context = {};
+
+  ExpressionEvaluator evaluator = const ExpressionEvaluator();
+
+  dynamic evalExpression(String str) async {
+    dynamic result;
+    try {
+      var expression = Expression.parse(str);
+      result = evaluator.eval(expression, context);
+    } catch (e) {
+      result = "E: $str";
+    }
+    return result;
+  }
+
+  void _init(rep) {
+    context = {
+      'title': rep.config['title'],
+      'total': 0,
+    };
+  }
+
+  Map<String, dynamic> curRow = {};
+  void _beforeBand(band) {
+    if (band.name == 'band') {
+      context.addAll(curRow);
+    }
+    if (band.name == 'logo') {
+      // refresh the page counter before print a new header
+      context['page'] = band.rep.config['page'];
+    }
+  }
+
+  void _afterBand(band) {
+    if (band.name == 'band') {
+      context['total'] += context['qt'] * context['price'];
+    }
+  }
+
+  rep = DotReport(
+    [
+      await readFile('./data/test.yaml'),
+      await readFile('./data/logo.yaml'),
+    ],
+    eval: evalExpression,
+    onInit: (rep) => _init(rep),
+    onBeforeBand: (band) => _beforeBand(band),
+    onAfterBand: (band) => _afterBand(band),
+  );
+  rep.charReplacer = {
+    'è': "e'",
+    'à': "a'",
+    'ì': "i",
+    'ò': "o'",
+    'ù': "u'",
+    'é': "e'",
+  };
+
+  curRow = {
+    'scu': "PRD01",
+    'description': "Café 01",
+    'qt': 2.5,
+    'price': 3.45,
+  };
+  await rep.print('band');
+  await rep.close();
+  print(rep.bytes);
 }
 
 /// test with expression evaluator

@@ -21,7 +21,7 @@ class DotReport {
   Map<String, dynamic> config = {};
 
   // bands for thsi script
-  Map<String, _Band> bands = {};
+  Map<String, DotBand> bands = {};
 
   // useless evaluator. Each field to be printed must be evaluated in some way
   // by default the content of field is simpe copied to the buffer but in real
@@ -43,6 +43,13 @@ class DotReport {
   // The command dialect in use.
   Commands cmd = EscPos();
 
+  // some event callbacks
+  ReportCallback? onInit;
+  ReportCallback? onBefore;
+  ReportCallback? onAfter;
+  BandCallback? onBeforeBand;
+  BandCallback? onAfterBand;
+
   /// The report constructor
   ///
   /// Accept a list of [scripts] which are texts in yaml format wich contains
@@ -61,6 +68,11 @@ class DotReport {
     List<String> scripts, {
     required Function eval,
     this.encoder = latin1,
+    this.onInit,
+    this.onBefore,
+    this.onAfter,
+    this.onBeforeBand,
+    this.onAfterBand,
   }) {
     evaluator = eval;
     bytes = [];
@@ -96,7 +108,7 @@ class DotReport {
     for (var script in scripts.reversed) {
       var doc = loadYaml(script);
       doc['bands'].forEach((k, v) {
-        bands[k] = _Band(this, k, v);
+        bands[k] = DotBand(this, k, v);
       });
     }
 
@@ -104,7 +116,7 @@ class DotReport {
     void chkBands(List list) {
       for (var v in list) {
         if (!bands.containsKey(v)) {
-          bands[v] = _Band(this, v, {});
+          bands[v] = DotBand(this, v, {});
         }
       }
     }
@@ -126,7 +138,7 @@ class DotReport {
     }
 
     // let's start, do some initializations
-    onInit();
+    if (onInit != null) onInit!(this);
   }
 
   /// replace characters not recognized by encoder
@@ -153,11 +165,11 @@ class DotReport {
   /// the band evaluation is stored in bytes buffer.
   ///
   Future<void> print(String band) async {
-    _Band b = bands[band]!;
+    DotBand b = bands[band]!;
 
     // print first header
     if (!start) {
-      onBefore();
+      if (onBefore != null) onBefore!(this);
       bytes.addAll(encoder.encode(cmd.init[0]));
       start = true;
       await print(config['logo']);
@@ -189,7 +201,7 @@ class DotReport {
   /// Print the last "footer" band and return the buffer to be sent to printer
   ///
   Future<List<int>> close() async {
-    _Band b = bands[config['footer'][0]]!;
+    DotBand b = bands[config['footer'][0]]!;
     if (!start) return bytes;
     while (curRow < bodyRows) {
       bytes.addAll(encoder.encode(endOfRow));
@@ -197,24 +209,19 @@ class DotReport {
     }
     bytes.addAll(await b.print());
     bytes.addAll(encoder.encode(endOfRow * config['cut_rows']));
-    onAfter();
+    if (onAfter != null) onAfter!(this);
     return bytes;
   }
-
-  // some events methods
-
-  void onInit() {}
-  void onBefore() {}
-  void onAfter() {}
-  void onBeforeBand(String band) {}
-  void onAfterBand(String band) {}
 }
+
+typedef ReportCallback = void Function(DotReport rep);
+typedef BandCallback = void Function(DotBand band);
 
 /// support class for DotReport
 ///
 /// handle band text images, evaluate fields, apply commands and do the image
 /// substiutions
-class _Band {
+class DotBand {
   DotReport rep;
   String name;
   String image = "";
@@ -227,7 +234,7 @@ class _Band {
   ///
   /// Do the calculations needed to print the band.
   ///
-  _Band(this.rep, this.name, Map v) {
+  DotBand(this.rep, this.name, Map v) {
     if (v.containsKey('image')) {
       image = v['image'].trimRight() + rep.endOfRow;
       values = v['values'];
@@ -297,7 +304,8 @@ class _Band {
     List<int> bytes = [];
     String result = image;
 
-    rep.onBeforeBand(name);
+    if (rep.onBeforeBand != null) rep.onBeforeBand!(this);
+
     // utility function to find a command in list of commands.
     String checkStrings(String s1, String s2, {defChar = ''}) {
       for (int i = 0; i < s1.length; i++) {
@@ -386,7 +394,7 @@ class _Band {
     }
     // encode result and return bytes
     bytes.addAll(rep.encoder.encode(result));
-    rep.onAfterBand(name);
+    if (rep.onAfterBand != null) rep.onAfterBand!(this);
     return bytes;
   }
 }
