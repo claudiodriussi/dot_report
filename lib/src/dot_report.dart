@@ -66,7 +66,7 @@ class DotReport {
   ///
   DotReport(
     List<String> scripts, {
-    required Function eval,
+    Function? eval,
     this.encoder = latin1,
     this.onInit,
     this.onBefore,
@@ -74,7 +74,7 @@ class DotReport {
     this.onBeforeBand,
     this.onAfterBand,
   }) {
-    evaluator = eval;
+    if (eval != null) evaluator = eval;
     bytes = [];
 
     // the first script contain the configuration parameters
