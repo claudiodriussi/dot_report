@@ -76,6 +76,7 @@ class DotReport {
   }) {
     if (eval != null) evaluator = eval;
     bytes = [];
+    bytes.addAll(encoder.encode(cmd.init[0]));
 
     // the first script contain the configuration parameters
     var doc = loadYaml(scripts[0]);
@@ -136,9 +137,14 @@ class DotReport {
             bands[config['footer'][1]]!.rows,
           );
     }
+  }
 
+  /// do some initializations. usually not needed because initalizations are
+  /// made by onBefore event.
+  ///
+  Future<void> init() async {
     // let's start, do some initializations
-    if (onInit != null) onInit!(this);
+    if (onInit != null) await onInit!(this);
   }
 
   /// replace characters not recognized by encoder
@@ -169,8 +175,7 @@ class DotReport {
 
     // print first header
     if (!start) {
-      if (onBefore != null) onBefore!(this);
-      bytes.addAll(encoder.encode(cmd.init[0]));
+      if (onBefore != null) await onBefore!(this);
       start = true;
       await print(config['logo']);
       await print(config['header'][0]);
@@ -209,13 +214,14 @@ class DotReport {
     }
     bytes.addAll(await b.print());
     bytes.addAll(encoder.encode(endOfRow * config['cut_rows']));
-    if (onAfter != null) onAfter!(this);
+    if (onAfter != null) await onAfter!(this);
+    bytes.addAll(encoder.encode(cmd.init[1]));
     return bytes;
   }
 }
 
-typedef ReportCallback = void Function(DotReport rep);
-typedef BandCallback = void Function(DotBand band);
+typedef ReportCallback = Future<void> Function(DotReport rep);
+typedef BandCallback = Future<void> Function(DotBand band);
 
 /// support class for DotReport
 ///
@@ -304,7 +310,7 @@ class DotBand {
     List<int> bytes = [];
     String result = image;
 
-    if (rep.onBeforeBand != null) rep.onBeforeBand!(this);
+    if (rep.onBeforeBand != null) await rep.onBeforeBand!(this);
 
     // utility function to find a command in list of commands.
     String checkStrings(String s1, String s2, {defChar = ''}) {
@@ -394,7 +400,7 @@ class DotBand {
     }
     // encode result and return bytes
     bytes.addAll(rep.encoder.encode(result));
-    if (rep.onAfterBand != null) rep.onAfterBand!(this);
+    if (rep.onAfterBand != null) await rep.onAfterBand!(this);
     return bytes;
   }
 }
@@ -423,7 +429,7 @@ class Commands {
 ///
 class EscPos extends Commands {
   @override
-  List init = ["$ESC@", ""];
+  List init = ["$ESC@", "${GS}V0"]; // init and cut
   @override
   List bold = ["${ESC}E\x01", "${ESC}E\x00"];
   @override

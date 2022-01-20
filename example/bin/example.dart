@@ -18,7 +18,7 @@ void main(List<String> arguments) async {
   print(DateTime.now().millisecondsSinceEpoch);
   await testCallback();
 
-  // uses an extended which integrate embed evaluator and data context for
+  // uses an extended class which embed evaluator and data context for the
   // evaluator
   print(DateTime.now().millisecondsSinceEpoch);
   await testExtended();
@@ -162,6 +162,7 @@ Future<void> testCallback() async {
 ///
 Future<void> testExtended() async {
   DotReportEval rep;
+  Map<String, dynamic> curRow = {};
 
   void _init(rep) {
     rep.context = {
@@ -170,7 +171,6 @@ Future<void> testExtended() async {
     };
   }
 
-  Map<String, dynamic> curRow = {};
   void _beforeBand(band) {
     if (band.name == 'band') {
       band.rep.context.addAll(curRow);
