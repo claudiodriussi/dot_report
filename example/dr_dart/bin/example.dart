@@ -1,14 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dot_report/dot_report.dart';
-import 'package:string_eval/string_eval.dart';
 import 'package:expressions/expressions.dart';
 
-/// test dot_report with two expression evaluators.
-///
-/// string_eval is nice and elegant, but is hard to use in flutter, so
-/// expressons is to be preferred
-///
 void main(List<String> arguments) async {
   // uses expression package to evaluate fields
   print(DateTime.now().millisecondsSinceEpoch);
@@ -22,10 +16,6 @@ void main(List<String> arguments) async {
   // evaluator
   print(DateTime.now().millisecondsSinceEpoch);
   await testExtended();
-
-  // uses the string_eval evaluator
-  print(DateTime.now().millisecondsSinceEpoch);
-  await testEval();
 
   print(DateTime.now().millisecondsSinceEpoch);
 }
@@ -88,7 +78,7 @@ Future<void> testExpression() async {
 /// test with expression evaluator and callbacks usage
 ///
 Future<void> testCallback() async {
-  DotReport rep;
+  late DotReport rep;
   Map<String, dynamic> context = {};
 
   ExpressionEvaluator evaluator = const ExpressionEvaluator();
@@ -104,7 +94,7 @@ Future<void> testCallback() async {
     return result;
   }
 
-  void _init(rep) {
+  Future<void> _before(rep) async {
     context = {
       'title': rep.config['title'],
       'total': 0,
@@ -112,7 +102,7 @@ Future<void> testCallback() async {
   }
 
   Map<String, dynamic> curRow = {};
-  void _beforeBand(band) {
+  Future<void> _beforeBand(band) async {
     if (band.name == 'band') {
       context.addAll(curRow);
     }
@@ -122,8 +112,9 @@ Future<void> testCallback() async {
     }
   }
 
-  void _afterBand(band) {
+  Future<void> _afterBand(band) async {
     if (band.name == 'band') {
+      var c = context;
       context['total'] += context['qt'] * context['price'];
     }
   }
@@ -134,7 +125,7 @@ Future<void> testCallback() async {
       await readFile('./data/logo.yaml'),
     ],
     eval: evalExpression,
-    onInit: (rep) => _init(rep),
+    onBefore: (rep) => _before(rep),
     onBeforeBand: (band) => _beforeBand(band),
     onAfterBand: (band) => _afterBand(band),
   );
@@ -158,20 +149,20 @@ Future<void> testCallback() async {
   print(rep.bytes.length);
 }
 
-/// test with expression evaluator, callbacks usage and derivated class
+/// test with expression evaluator, callbacks usage and derived class
 ///
 Future<void> testExtended() async {
   DotReportEval rep;
   Map<String, dynamic> curRow = {};
 
-  void _init(rep) {
-    rep.context = {
+  Future<void> _init(rep) async {
+    rep.context.addAll({
       'title': rep.config['title'],
-      'total': 0,
-    };
+      'total': 0.0,
+    });
   }
 
-  void _beforeBand(band) {
+  Future<void> _beforeBand(band) async {
     if (band.name == 'band') {
       band.rep.context.addAll(curRow);
     }
@@ -181,7 +172,7 @@ Future<void> testExtended() async {
     }
   }
 
-  void _afterBand(band) {
+  Future<void> _afterBand(band) async {
     if (band.name == 'band') {
       band.rep.context['total'] +=
           band.rep.context['qt'] * band.rep.context['price'];
@@ -204,13 +195,27 @@ Future<void> testExtended() async {
     'qt': 2.5,
     'price': 3.45,
   };
+  await rep.init();
   await rep.print('band');
   await rep.close();
   print(rep.bytes.length);
 }
 
+dynamic iif(condition, valTrue, valFalse) {
+  return condition ? valTrue : valFalse;
+}
+
+bool empty(value) {
+  if (value is String) return value.trim() == '';
+  if (value is num) return value == 0;
+  return false;
+}
+
 mixin ExpressionReport on DotReport {
-  Map<String, dynamic> context = {};
+  Map<String, dynamic> context = {
+    'iif': iif,
+    'empty': empty,
+  };
 
   ExpressionEvaluator evalIt = const ExpressionEvaluator();
   dynamic evalExpression(String str) async {
@@ -253,53 +258,4 @@ class DotReportEval extends DotReport with ExpressionReport {
       'é': "e'",
     };
   }
-}
-
-/// test with string_eval evaluator
-///
-Future<void> testEval() async {
-  DotReport rep;
-  Map<String, dynamic> data = {};
-  StringEval evalObj = StringEval();
-
-  Future<dynamic> evalStr(String str) async {
-    dynamic result;
-    try {
-      result = await evalObj.calc(str);
-    } catch (e) {
-      result = "Err: $str";
-    }
-    return result;
-  }
-
-  rep = DotReport(
-    [
-      await readFile('./data/test.yaml'),
-      await readFile('./data/logo.yaml'),
-    ],
-    eval: evalStr,
-  );
-  rep.charReplacer = {
-    'è': "e'",
-    'à': "a'",
-    'ì': "i",
-    'ò': "o'",
-    'ù': "u'",
-    'é': "e'",
-  };
-
-  data = {
-    'page': rep.config['page'],
-    'title': rep.config['title'],
-    'scu': "PRD01",
-    'description': "Caffé 01",
-    'qt': 2.5,
-    'price': 3.45,
-    'total': 333.12,
-  };
-  evalObj.buildVars(data);
-
-  await rep.print('band');
-  await rep.close();
-  print(rep.bytes.length);
 }

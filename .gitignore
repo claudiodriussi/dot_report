@@ -7,3 +7,25 @@ pubspec.lock
 build/
 doc/
 _notes/
+
+# examples
+linux/
+ios/
+macos/
+web/
+data/
+android/app/src/main/res/**
+pubspec.lock
+windows/
+test/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/

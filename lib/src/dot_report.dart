@@ -20,17 +20,17 @@ class DotReport {
   // configuration parameters from yaml file
   Map<String, dynamic> config = {};
 
-  // bands for thsi script
+  // bands for this script
   Map<String, DotBand> bands = {};
 
   // useless evaluator. Each field to be printed must be evaluated in some way
-  // by default the content of field is simpe copied to the buffer but in real
-  // cases some evalation is required.
+  // by default the content of field is simple copied to the buffer but in real
+  // cases some evaluation is required.
   // ignore: prefer_function_declarations_over_variables
   dynamic evaluator = (String str) => str;
 
-  // the encoder used to transalte strings. The init command should send
-  // differnt configuration commands for differnt encoders.
+  // the encoder used to translate strings. The init command should send
+  // different configuration commands for different encoders.
   Encoding encoder;
 
   // some special characters can be not recognized by encoder so we can set
@@ -52,10 +52,10 @@ class DotReport {
 
   /// The report constructor
   ///
-  /// Accept a list of [scripts] which are texts in yaml format wich contains
-  /// configuration parameters and bands. Confiugration parameters are in the
+  /// Accept a list of [scripts] which are texts in yaml format which contains
+  /// configuration parameters and bands. Configuration parameters are in the
   /// first script and the bands can be in every script, so you can reuse bands
-  /// in different reports. If same band is in more than one scritpt the
+  /// in different reports. If same band is in more than one script the
   /// precedence is given to the prior which hide the following.
   ///
   /// The required [eval] parameter is a function which accept the expressions
@@ -139,7 +139,7 @@ class DotReport {
     }
   }
 
-  /// do some initializations. usually not needed because initalizations are
+  /// do some initializations. usually not needed because initializations are
   /// made by onBefore event.
   ///
   Future<void> init() async {
@@ -166,7 +166,7 @@ class DotReport {
   /// the [band] parameter is the name of band to be printed and it must be
   /// presente in the bands Map.
   ///
-  /// This method automatically handle the pagebreak condition and print all
+  /// This method automatically handle the page-break condition and print all
   /// default bands which are "logo", "headers" and "footers" the result of
   /// the band evaluation is stored in bytes buffer.
   ///
@@ -181,7 +181,7 @@ class DotReport {
       await print(config['header'][0]);
     }
 
-    // if not roll print calculate page break and print foter and header
+    // if not roll print calculate page break and print footer and header
     if (config['page_length'] != 0) {
       if (curRow + b.rows > bodyRows) {
         while (curRow < bodyRows) {
@@ -226,7 +226,7 @@ typedef BandCallback = Future<void> Function(DotBand band);
 /// support class for DotReport
 ///
 /// handle band text images, evaluate fields, apply commands and do the image
-/// substiutions
+/// substitutions
 class DotBand {
   DotReport rep;
   String name;
@@ -249,11 +249,11 @@ class DotBand {
     }
   }
 
-  /// calc pos of fields in reversed order so values exceding the image fields
+  /// calc pos of fields in reversed order so values exceeding the image fields
   /// are ignored.
   ///
   /// each element of the pos list is a list with:
-  /// 0= index of value, 1=pos, 2=lenght
+  /// 0= index of value, 1=pos, 2=length
   ///
   _calcPos() {
     bool inFiled = false;
@@ -288,7 +288,7 @@ class DotBand {
   /// print a single band
   ///
   /// the image fields are replaced with values evaluated. Then the printer
-  /// commands are applied to every field. the list of bytes whith the
+  /// commands are applied to every field. the list of bytes with the
   /// evaluated image is returned
   ///
   /// recognized commands are:
@@ -328,7 +328,7 @@ class DotBand {
       var script = values[pos[i][0]][1];
       int lenFld = pos[i][2];
 
-      // check for double whdth fields
+      // check for double width fields
       if (checkStrings(commands, 'DW') != '') lenFld = lenFld ~/ 2;
 
       // evaluate the field and transform the value to string
@@ -338,7 +338,7 @@ class DotBand {
         fld = rep.charReplace(t);
       } else if (t is num) {
         // if value is a number it is transformed in number in commands can
-        // be declared the numbero of decimals.
+        // be declared the number of decimals.
         if (t == 0 && commands.indexOf('S') != -1) {
           fld = '';
         } else {
@@ -355,7 +355,7 @@ class DotBand {
         fld = t.toString();
       }
 
-      // set the lenght of string and alignment
+      // set the length of string and alignment
       t = checkStrings(commands, 'LR', defChar: t is num ? 'R' : 'L');
       if (fld.length > lenFld) {
         fld = fld.substring(0, lenFld);
@@ -412,7 +412,7 @@ const GS = '\x1d'; // 29
 
 /// generic abstract commands class.
 ///
-/// The derivated classes implements commands that can be sent to the printer
+/// The derived classes implements commands that can be sent to the printer
 ///
 class Commands {
   List init = ['', ''];

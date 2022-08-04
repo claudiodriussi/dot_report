@@ -9,9 +9,7 @@ environment:
 dependencies:
   path: ^1.8.0
   dot_report:
-    path: ..
-  string_eval:
-    git: https://github.com/claudiodriussi/string_eval.git
+    path: ../..
   expressions:
 
 dev_dependencies:

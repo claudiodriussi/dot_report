@@ -3,12 +3,13 @@ config:
   name: Test script
   description: invoice
   title: Invoice
-  page_length: 48
+  page_length: 0
   header: [header, header1]
   footer: ["footer", "footer1"]
   escape: '\~'
   placeholders: "x.@"
   cut_rows: 3
+  scripts: ["logo"]
 
 # recognized commands
 # B Bold
@@ -48,7 +49,7 @@ bands:
       - ["ED", "scu"]
       - ["W", "description"]
       - ["", "qt"]
-      - ["", "price"]
+      - ["", "iif(empty(price),'zero', price)"]
       - ["", "qt*price"]
 
   description:
