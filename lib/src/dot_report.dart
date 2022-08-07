@@ -128,14 +128,20 @@ class DotReport {
     chkBands(config['header']);
     chkBands(config['footer']);
 
-    // determinate the greather (in rows) between foters to find rows to print
+    // adjust height of headers and footers
+    void setHeight(b1, b2) {
+      var diff = bands[b1]!.rows - bands[b2]!.rows;
+      if (diff > 0) bands[b2]!.addRows(diff);
+      if (diff < 0) bands[b1]!.addRows(-diff);
+    }
+
+    setHeight(config['header'][0], config['header'][1]);
+    setHeight(config['footer'][0], config['footer'][1]);
+
+    // determinate the greater (in rows) between footers to find rows to print
     // before page break
     if (config['page_length'] != 0) {
-      bodyRows = config['page_length'] -
-          max(
-            bands[config['footer'][0]]!.rows,
-            bands[config['footer'][1]]!.rows,
-          );
+      bodyRows = config['page_length'] - bands[config['footer'][0]]!.rows;
     }
   }
 
@@ -182,17 +188,19 @@ class DotReport {
     }
 
     // if not roll print calculate page break and print footer and header
-    if (config['page_length'] != 0) {
-      if (curRow + b.rows > bodyRows) {
-        while (curRow < bodyRows) {
-          bytes.addAll(encoder.encode(endOfRow));
-          curRow += 1;
+    if (band.compareTo(config['footer'][1]) != 0) {
+      if (config['page_length'] != 0) {
+        if (curRow + b.rows > bodyRows) {
+          while (curRow < bodyRows) {
+            bytes.addAll(encoder.encode(endOfRow));
+            curRow += 1;
+          }
+          await print(config['footer'][1]);
+          config['page'] += 1;
+          curRow = 0;
+          await print(config['logo']);
+          await print(config['header'][1]);
         }
-        await print(config['footer'][1]);
-        config['page'] += 1;
-        curRow = 0;
-        await print(config['logo']);
-        await print(config['header'][1]);
       }
     }
 
@@ -243,8 +251,16 @@ class DotBand {
   DotBand(this.rep, this.name, Map v) {
     if (v.containsKey('image')) {
       image = v['image'].trimRight() + rep.endOfRow;
-      values = v['values'];
+      values = v['values'].value;
       _calcPos();
+      rows = image.split('\n').length - 1;
+    }
+  }
+
+  /// add empty rows to image band to adjust height
+  void addRows(numRows) {
+    if (numRows > 0) {
+      image += rep.endOfRow * numRows;
       rows = image.split('\n').length - 1;
     }
   }
@@ -255,7 +271,7 @@ class DotBand {
   /// each element of the pos list is a list with:
   /// 0= index of value, 1=pos, 2=length
   ///
-  _calcPos() {
+  void _calcPos() {
     bool inFiled = false;
     int start = 0;
     int len = 0;
@@ -324,8 +340,15 @@ class DotBand {
     // preserved
     for (int i = 0; i < pos.length; i++) {
       // evaluate the value
-      var commands = values[pos[i][0]][0];
-      var script = values[pos[i][0]][1];
+      String commands;
+      String script;
+      try {
+        commands = values[pos[i][0]][0];
+        script = values[pos[i][0]][1];
+      } catch (e) {
+        commands = "";
+        script = "'Err'";
+      }
       int lenFld = pos[i][2];
 
       // check for double width fields

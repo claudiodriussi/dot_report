@@ -155,7 +155,7 @@ Future<void> testExtended() async {
   DotReportEval rep;
   Map<String, dynamic> curRow = {};
 
-  Future<void> _init(rep) async {
+  Future<void> _before(rep) async {
     rep.context.addAll({
       'title': rep.config['title'],
       'total': 0.0,
@@ -184,7 +184,7 @@ Future<void> testExtended() async {
       await readFile('./data/test.yaml'),
       await readFile('./data/logo.yaml'),
     ],
-    onInit: (rep) => _init(rep),
+    onBefore: (rep) => _before(rep),
     onBeforeBand: (band) => _beforeBand(band),
     onAfterBand: (band) => _afterBand(band),
   );
@@ -195,7 +195,6 @@ Future<void> testExtended() async {
     'qt': 2.5,
     'price': 3.45,
   };
-  await rep.init();
   await rep.print('band');
   await rep.close();
   print(rep.bytes.length);

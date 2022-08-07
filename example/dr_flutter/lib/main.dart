@@ -74,7 +74,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
               },
               child: const Text('Basic report'),
-            )
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (currentPrinter == '') {
+                  noPrinter();
+                } else {
+                  await fixedSizeReport(currentPrinter);
+                }
+              },
+              child: const Text('Fixed size report'),
+            ),
           ],
         ),
       ),
