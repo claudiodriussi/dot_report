@@ -122,8 +122,12 @@ class DotReport {
       }
     }
 
-    if (config['header'].length < 2) config['header'].add(config['header'][0]);
-    if (config['footer'].length < 2) config['footer'].add(config['footer'][0]);
+    if (config['header'].length < 2) {
+      config['header'] = [config['header'][0], config['header'][0]];
+    }
+    if (config['footer'].length < 2) {
+      config['footer'] = [config['footer'][0], config['footer'][0]];
+    }
     chkBands([config['logo']]);
     chkBands(config['header']);
     chkBands(config['footer']);
@@ -225,6 +229,12 @@ class DotReport {
     if (onAfter != null) await onAfter!(this);
     bytes.addAll(encoder.encode(cmd.init[1]));
     return bytes;
+  }
+
+  /// add blank lines to the report
+  ///
+  void addLines({int lines = 1}) {
+    bytes.addAll(encoder.encode(endOfRow * lines));
   }
 }
 

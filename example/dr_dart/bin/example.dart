@@ -3,6 +3,11 @@ import 'dart:io';
 import 'package:dot_report/dot_report.dart';
 import 'package:expressions/expressions.dart';
 
+/// pure dart demo of DotReport.
+///
+/// As is is useless. the main purpose is to demonstrate the pure dart
+/// capability of DotReport and to test it in an easier way.
+///
 void main(List<String> arguments) async {
   // uses expression package to evaluate fields
   print(DateTime.now().millisecondsSinceEpoch);
@@ -63,7 +68,7 @@ Future<void> testExpression() async {
   context = {
     'page': rep.config['page'],
     'title': rep.config['title'],
-    'scu': "PRD01",
+    'sku': "PRD01",
     'description': "Caffé 01",
     'qt': 2.5,
     'price': 3.45,
@@ -139,7 +144,7 @@ Future<void> testCallback() async {
   };
 
   curRow = {
-    'scu': "PRD01",
+    'sku': "PRD01",
     'description': "Café 01",
     'qt': 2.5,
     'price': 3.45,
@@ -190,7 +195,7 @@ Future<void> testExtended() async {
   );
 
   curRow = {
-    'scu': "PRD01",
+    'sku': "PRD01",
     'description': "Café 01",
     'qt': 2.5,
     'price': 3.45,

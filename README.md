@@ -53,7 +53,7 @@ can handle all types of data.
 The system can handle fixed length forms for dot matrix printers and can be
 used to print on chemical paper, but with some limitations on print style.
 
-But the mot often usage in on thermic roll printers which do not need to
+But the most often usage in on thermic roll printers which do not need to
 respect height, so graphics and double height fonts can be mixed with normal
 fonts.
 

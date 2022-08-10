@@ -14,6 +14,8 @@ dependencies:
   expressions:
   yaml: ^3.1.0
   intl: ^0.17.0
+  esc_pos_utils: ^1.1.0
+  image: ^3.2.0
 
 dev_dependencies:
   flutter_test:
