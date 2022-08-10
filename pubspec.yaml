@@ -1,7 +1,7 @@
 name: dot_report
 description: A report system for character based printers, mainly ESC/POS
-version: 1.0.0
-# homepage: https://www.example.com
+version: 0.9.0
+homepage: https://github.com/claudiodriussi/dot_report
 
 environment:
   sdk: ">=2.14.3 <3.0.0"

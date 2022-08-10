@@ -4,8 +4,6 @@ config:
   description: invoice
   title: Invoice
   page_length: 0
-  header: ["header"]
-  footer: ["footer"]
 
 bands:
   logo:
@@ -40,9 +38,9 @@ bands:
     values:
       - ["", "sku"]
       - ["", "description"]
-      - ["", "qt"]
-      - ["", "iif(empty(price),'zero', price)"]
-      - ["", "qt*price"]
+      - ["2", "qt"]
+      - ["2R", "iif(empty(price),'zero', price)"]
+      - ["S2", "qt*price"]
 
   description:
     #          1         2         3         4

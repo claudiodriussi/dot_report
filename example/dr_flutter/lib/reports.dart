@@ -38,10 +38,6 @@ Future<void> basicReport(String printer) async {
     if (band.name == 'band') {
       band.rep.context.addAll(curRow);
     }
-    if (band.name == 'logo') {
-      // refresh the page counter before print a new header
-      band.rep.context['page'] = band.rep.config['page'];
-    }
   }
 
   // onAfterBand event callback, this is called right after each print band.
@@ -98,6 +94,60 @@ var data = [
   {'sku': "", 'description': ""},
 ];
 
+/// this report show the most common usage of DotReport
+///
+Future<void> simpleReport(String printer) async {
+  DotReportEval rep;
+  Map<String, dynamic> curRow = {};
+
+  await connectPrinter(printer);
+
+  Future<void> _before(rep) async {
+    rep.context.addAll({
+      'doc_num': 123,
+      'doc_date': DateTime.now(),
+      'title': rep.config['title'],
+      'total': 0.0,
+    });
+  }
+
+  Future<void> _beforeBand(band) async {
+    if (band.name == 'band' || band.name == 'description') {
+      band.rep.context.addAll(curRow);
+    }
+  }
+
+  Future<void> _afterBand(band) async {
+    if (band.name == 'band') {
+      band.rep.context['total'] +=
+          band.rep.context['qt'] * band.rep.context['price'];
+    }
+  }
+
+  // the instance of DotReport class or derived
+  rep = DotReportEval(
+    await loadScripts('mix'),
+    onBefore: (rep) => _before(rep),
+    onBeforeBand: (band) => _beforeBand(band),
+    onAfterBand: (band) => _afterBand(band),
+  );
+
+  // _beforeBand callback uses curRow to fill the context.
+  for (curRow in data) {
+    // note that you can choose the band to print
+    if (curRow['sku'] == '') {
+      await rep.print('description');
+    } else {
+      await rep.print('band');
+    }
+  }
+
+  await rep.close();
+  rep.addLines(lines: 3);
+
+  await BluetoothThermalPrinter.writeBytes(rep.bytes);
+}
+
 /// this report sample print 2 fixed size pages. Useful to print on dot matrix
 /// printers with chemical paper.
 ///
@@ -144,9 +194,7 @@ Future<void> fixedSizeReport(String printer) async {
 
   // print 3 times to print more than one page
   for (int i = 0; i < 3; i++) {
-    // _beforeBand callback sues curRow to fill the context.
     for (curRow in data) {
-      // note that you can choose the band to print
       if (curRow['sku'] == '') {
         await rep.print('description');
       } else {
@@ -181,7 +229,7 @@ Future<void> mixImagesReport(String printer) async {
 
   await connectPrinter(printer);
 
-  Future<void> _brefore(rep) async {
+  Future<void> _before(rep) async {
     rep.context.addAll({
       'doc_num': 123,
       'doc_date': DateTime.now(),
@@ -209,7 +257,7 @@ Future<void> mixImagesReport(String printer) async {
   // the instance of DotReport class or derived
   rep = DotReportEval(
     await loadScripts('mix'),
-    onBefore: (rep) => _brefore(rep),
+    onBefore: (rep) => _before(rep),
     onBeforeBand: (band) => _beforeBand(band),
     onAfterBand: (band) => _afterBand(band),
   );

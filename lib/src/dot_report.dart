@@ -87,7 +87,7 @@ class DotReport {
     config['description'] = doc['config']['description'] ?? '';
     // title of report
     config['title'] = doc['config']['title'] ?? '';
-    // page lenght for page prenters, zero mean roll print without page break
+    // page length for page printers, zero mean roll print without page break
     config['page_length'] = doc['config']['page_length'] ?? 0;
     // the band to print before all headers
     config['logo'] = doc['config']['logo'] ?? 'logo';
@@ -95,7 +95,7 @@ class DotReport {
     config['header'] = doc['config']['header'] ?? ['header', 'header'];
     // the last footer and footers before last page
     config['footer'] = doc['config']['footer'] ?? ['footer', 'footer'];
-    // escape characters to indeftify fields in image band
+    // escape characters to identify fields in image band
     config['escape'] = doc['config']['escape'] ?? '\\~';
     // accepted placeholder characters within fields
     config['placeholders'] = doc['config']['placeholders'] ?? 'x.@';

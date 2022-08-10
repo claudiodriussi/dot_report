@@ -80,6 +80,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (currentPrinter == '') {
                   noPrinter();
                 } else {
+                  await simpleReport(currentPrinter);
+                }
+              },
+              child: const Text('Simple report'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (currentPrinter == '') {
+                  noPrinter();
+                } else {
                   await fixedSizeReport(currentPrinter);
                 }
               },
