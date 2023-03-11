@@ -6,7 +6,7 @@ A simple report system for character based printers, mainly ESC/POS written in p
 
 The report system let you to create a `list of integers` that can be sent to any character based printer.
 
-It only produce the data to send, the way you use to send data depend on you, under Flutter you can use some lib to send data with bluetooth or wifi. One of them is: https://pub.dev/packages/bluetooth_thermal_printer
+It only produce the data to send, the way you use to send data depend on you, under Flutter you can use some lib to send data with bluetooth or wifi. I tried it with https://pub.dev/packages/bluetooth_thermal_printer and https://pub.dev/packages/flutter_bluetooth_printer. The second has the advantage that is distributed with Android and iOS source code and at time of writing is actively developed (See `dr_flutter2` example).
 
 The main idea behind dot_report is to separate presentation from logic, and let the user to modify presentation without recompile source, so in flutter you can have a default reports and customized reports for each customer need.
 
@@ -38,7 +38,7 @@ bands:
 
 Each placeholder can be substituted with constants values or expressions from variables coming from your application.
 
-The expression evaluator used to resolve formulas can be configured, but my choice is https://pub.dev/packages/expressions which is very powerful, and can handle all types of data and also add functions to evaluator.
+The expression evaluator used to resolve formulas can be configured, but my choice is https://pub.dev/packages/expressions which is very powerful, can handle all types of data and also let you add functions to evaluator.
 
 The system can handle fixed length forms for dot matrix printers and can be used to print on chemical paper, but with some limitations on print style.
 
@@ -48,12 +48,12 @@ During preparing data to print you can add graphic and barcode if your printer s
 
 ## Getting started
 
-See on examples, pure dart example show some of the main features of the lib and flutter example show how to integrate the lib in flutter.
+See on examples, pure dart example show some of the main features of the lib and flutter examples show how to integrate the lib in flutter with all tested bluetooth libraries.
 
 
 ## Usage
 
-The Flutter example provided is full documented and you can see the most of dot_report capabilities. But some explanations about workflow is required.
+The Flutter examples provided are full documented and you can see the most of dot_report capabilities. But some explanations about workflow is required.
 
 - The reporting starts with an instance of class DotReport or some derived class, as parameters you pass text of reports in yaml format.
 - Then you can build a loop from your data and print bands with the `print` method, you have full freedom on data to print and how to print it using different bands for different data.
@@ -69,9 +69,9 @@ A simple call of DotReport is:
   rep = DotReport(
     [script1, script2],
     eval: evalExpression,
-    onBefore: (rep) => _brefore(rep),
-    onBeforeBand: (band) => _beforeBand(band),
-    onAfterBand: (band) => _afterBand(band),
+    onBefore: (rep) => brefore(rep),
+    onBeforeBand: (band) => beforeBand(band),
+    onAfterBand: (band) => afterBand(band),
   );
 ```
 
@@ -108,7 +108,7 @@ see the source code. You can also provide a `charReplacer` to use if your printe
   };
 ```
 
-dot_report is pluggable and versatile, but at the moment the best results can be achieved using https://pub.dev/packages/expressions expression evaluator and https://pub.dev/packages/bluetooth_thermal_printer to send data to printer from Android.
+dot_report is pluggable and versatile, but at the moment the best results can be achieved using https://pub.dev/packages/expressions expression evaluator and https://pub.dev/packages/flutter_bluetooth_printer to send data to printer from Android.
 
 I also advice to build a derived class as shown in examples.
 
@@ -184,8 +184,7 @@ In my demo I used `image`, `barcode` and `qrcode` methods. Unluckily all these m
 
 ## Printers
 
-At the moment I tested dot_report only with https://goojprt.com/ MTP-3 printer, but it should work with all ESC/POS printers.
-
+At the moment I tested dot_report with some printer models including https://goojprt.com/ MTP-3 printer, and it should work with all ESC/POS printers.
 
 ![](./images/GOOJPRT-MTP-3.jpg)
 ![](./images/simple.jpg)
