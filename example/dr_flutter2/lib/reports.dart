@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:intl/intl.dart';
 import 'package:expressions/expressions.dart';
 import 'package:dot_report/dot_report.dart';
@@ -15,12 +14,9 @@ Future<void> basicReport(String printer) async {
   DotReportEval rep;
   Map<String, dynamic> curRow = {};
 
-  // connect the printer before printing
-//  await connectPrinter(printer);
-
   // onInit event callback, it is called by [init()] method, usually it is not
   // needed, the onBefore callback should be preferred.
-  Future<void> _init(rep) async {
+  Future<void> init(rep) async {
     rep.context.addAll({
       'title': rep.config['title'],
       'total': 0.0,
@@ -31,7 +27,7 @@ Future<void> basicReport(String printer) async {
   // the right place to set context values for current row to print, the [band]
   // parameter is the name of band to be printed, so right context values can
   // be set.
-  Future<void> _beforeBand(band) async {
+  Future<void> beforeBand(band) async {
     if (band.name == 'band') {
       band.rep.context.addAll(curRow);
     }
@@ -39,7 +35,7 @@ Future<void> basicReport(String printer) async {
 
   // onAfterBand event callback, this is called right after each print band.
   // Usually is used to summarize values to be printed at the foot of report.
-  Future<void> _afterBand(band) async {
+  Future<void> afterBand(band) async {
     if (band.name == 'band') {
       band.rep.context['total'] +=
           band.rep.context['qt'] * band.rep.context['price'];
@@ -49,9 +45,9 @@ Future<void> basicReport(String printer) async {
   // the instance of DotReport class or derived
   rep = DotReportEval(
     await loadScripts('test'),
-    onInit: (rep) => _init(rep),
-    onBeforeBand: (band) => _beforeBand(band),
-    onAfterBand: (band) => _afterBand(band),
+    onInit: (rep) => init(rep),
+    onBeforeBand: (band) => beforeBand(band),
+    onAfterBand: (band) => afterBand(band),
   );
   await rep.init();
 
@@ -79,8 +75,6 @@ Future<void> basicReport(String printer) async {
   );
 }
 
-/*
-
 // prepare some data to print
 var data = [
   {'sku': "PRD01", 'description': "Café 01", 'qt': 2.5, 'price': 3.45},
@@ -103,9 +97,7 @@ Future<void> simpleReport(String printer) async {
   DotReportEval rep;
   Map<String, dynamic> curRow = {};
 
-  await connectPrinter(printer);
-
-  Future<void> _before(rep) async {
+  Future<void> before(rep) async {
     rep.context.addAll({
       'doc_num': 123,
       'doc_date': DateTime.now(),
@@ -114,13 +106,13 @@ Future<void> simpleReport(String printer) async {
     });
   }
 
-  Future<void> _beforeBand(band) async {
+  Future<void> beforeBand(band) async {
     if (band.name == 'band' || band.name == 'description') {
       band.rep.context.addAll(curRow);
     }
   }
 
-  Future<void> _afterBand(band) async {
+  Future<void> afterBand(band) async {
     if (band.name == 'band') {
       band.rep.context['total'] +=
           band.rep.context['qt'] * band.rep.context['price'];
@@ -130,9 +122,9 @@ Future<void> simpleReport(String printer) async {
   // the instance of DotReport class or derived
   rep = DotReportEval(
     await loadScripts('mix'),
-    onBefore: (rep) => _before(rep),
-    onBeforeBand: (band) => _beforeBand(band),
-    onAfterBand: (band) => _afterBand(band),
+    onBefore: (rep) => before(rep),
+    onBeforeBand: (band) => beforeBand(band),
+    onAfterBand: (band) => afterBand(band),
   );
 
   // _beforeBand callback uses curRow to fill the context.
@@ -148,7 +140,11 @@ Future<void> simpleReport(String printer) async {
   await rep.close();
   rep.addLines(lines: 3);
 
-  await BluetoothThermalPrinter.writeBytes(rep.bytes);
+  FlutterBluetoothPrinter.printBytes(
+    address: currentPrinter,
+    data: rep.list,
+    keepConnected: false,
+  );
 }
 
 /// this report sample print 2 fixed size pages. Useful to print on dot matrix
@@ -158,9 +154,7 @@ Future<void> fixedSizeReport(String printer) async {
   DotReportEval rep;
   Map<String, dynamic> curRow = {};
 
-  await connectPrinter(printer);
-
-  Future<void> _brefore(rep) async {
+  Future<void> brefore(rep) async {
     rep.context.addAll({
       'doc_num': 123,
       'doc_date': DateTime.now(), // note the date in DateTime format
@@ -169,7 +163,7 @@ Future<void> fixedSizeReport(String printer) async {
     });
   }
 
-  Future<void> _beforeBand(band) async {
+  Future<void> beforeBand(band) async {
     if (band.name == 'band' || band.name == 'description') {
       band.rep.context.addAll(curRow);
     }
@@ -180,7 +174,7 @@ Future<void> fixedSizeReport(String printer) async {
     }
   }
 
-  Future<void> _afterBand(band) async {
+  Future<void> afterBand(band) async {
     if (band.name == 'band') {
       band.rep.context['total'] +=
           band.rep.context['qt'] * band.rep.context['price'];
@@ -190,9 +184,9 @@ Future<void> fixedSizeReport(String printer) async {
   // the instance of DotReport class or derived
   rep = DotReportEval(
     await loadScripts('fixedsize'),
-    onBefore: (rep) => _brefore(rep),
-    onBeforeBand: (band) => _beforeBand(band),
-    onAfterBand: (band) => _afterBand(band),
+    onBefore: (rep) => brefore(rep),
+    onBeforeBand: (band) => beforeBand(band),
+    onAfterBand: (band) => afterBand(band),
   );
 
   // print 3 times to print more than one page
@@ -207,8 +201,14 @@ Future<void> fixedSizeReport(String printer) async {
   }
 
   await rep.close();
-  await BluetoothThermalPrinter.writeBytes(rep.bytes);
+  FlutterBluetoothPrinter.printBytes(
+    address: currentPrinter,
+    data: rep.list,
+    keepConnected: false,
+  );
 }
+
+/*
 
 /// this report mix images, barcodes and qr codes whit DotReport.
 /// This don't work with fixed height forms because the system can't

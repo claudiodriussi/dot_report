@@ -76,6 +76,26 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Basic report'),
             ),
+            ElevatedButton(
+              onPressed: () async {
+                if (currentPrinter == '') {
+                  noPrinter();
+                } else {
+                  await simpleReport(currentPrinter);
+                }
+              },
+              child: const Text('Simple report'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (currentPrinter == '') {
+                  noPrinter();
+                } else {
+                  await fixedSizeReport(currentPrinter);
+                }
+              },
+              child: const Text('Fixed size report'),
+            ),
           ],
         ),
       ),
