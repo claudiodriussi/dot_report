@@ -8,7 +8,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  dot_report:
+    path: ../..
   flutter_bluetooth_printer: ^2.8.0
+  expressions:
+  yaml: ^3.1.0
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +22,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/dot_report/
+    - assets/images/

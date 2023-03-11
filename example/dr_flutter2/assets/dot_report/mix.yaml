@@ -1,0 +1,64 @@
+---
+config:
+  name: Test script
+  description: invoice
+  title: Invoice
+  page_length: 0
+
+bands:
+  logo:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+      \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      ADD SOME INFORMATION  ABOUT YOU AND YOUR COMPANY
+
+    values:
+      - ["B", "'YOUR COMPANY NAME AND ADDRESS'"]
+
+  header:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+      Invoice # \xxxxx Date \x.xx.xxxx
+      ================================================
+
+    values:
+      - ["", "doc_num"]
+      - ["", "str(doc_date)"]
+
+  band:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      \xxxxx \xxxxxxxxxxxxxxxxxxx \xx.xx \xx.xx \xx.xx
+
+    values:
+      - ["", "sku"]
+      - ["", "description"]
+      - ["2", "qt"]
+      - ["2R", "iif(empty(price),'zero', price)"]
+      - ["S2", "qt*price"]
+
+  description:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    values:
+      - ["", "description"]
+
+  footer:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+                                   Total  |\xxxxx.xxx|
+      ================================================
+      Signature
+
+    values:
+      - ["U3", "total"]

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_printer/flutter_bluetooth_printer.dart';
 
 import 'utils.dart';
+import 'reports.dart';
 
 void main() {
   runApp(const MyApp());
@@ -64,6 +65,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
               },
               child: const Text('Printer test'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (currentPrinter == '') {
+                  noPrinter();
+                } else {
+                  await basicReport(currentPrinter);
+                }
+              },
+              child: const Text('Basic report'),
             ),
           ],
         ),

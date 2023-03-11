@@ -1,0 +1,108 @@
+---
+config:
+  name: Test script
+  description: invoice
+  title: Invoice
+  page_length: 36
+  header: ["header", "header1"]
+  footer: ["footer", "footer1"]
+  escape: '\~'
+  placeholders: "x.@"
+
+# recognized commands
+# B Bold
+# U Underline
+# u Underline2
+# D Double size
+# W Double width
+# H Double height
+# E Reverse mode
+
+# 0-9 N. of decimals
+# S Space if zero
+
+# L left alignment
+# R Right alignment
+
+bands:
+  logo:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+      \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      ADD SOME INFORMATION  ABOUT YOU AND YOUR COMPANY
+
+    values:
+      - ["B", "'YOUR COMPANY NAME AND ADDRESS'"]
+
+  header:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+      Invoice# \xxxxx Date \x.xx.xxxx         page \xx
+      ================================================
+
+    values:
+      - ["", "doc_num"]
+      - ["", "str(doc_date)"]
+      - ["", "page"]
+
+  header1:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+      Follow Invoice# \xxxxx Date \x.xx.xxxx  page \xx
+      ================================================
+
+    values:
+      - ["", "doc_num"]
+      - ["", "str(doc_date)"]
+      - ["", "page"]
+
+  band:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      \xxxxx \xxxxxxxxxxxxxxxxxxx \xx.xx \xx.xx \xx.xx
+
+    values:
+      - ["", "sku"]
+      - ["", "description"]
+      - ["2", "qt"]
+      - ["2R", "iif(empty(price),'zero', price)"]
+      - ["S2", "qt*price"]
+
+  description:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      \xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+    values:
+      - ["", "description"]
+
+  footer1:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+                                        *** follow ***
+
+    values:
+      - ["U3", "total"]
+
+  footer:
+    #          1         2         3         4
+    # 123456789_123456789_123456789_123456789_12345678
+    image: |
+      ================================================
+                                   Total  |\xxxxx.xxx|
+      ================================================
+
+
+      |
+    values:
+      - ["U3", "total"]
