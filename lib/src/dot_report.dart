@@ -1,5 +1,5 @@
-import 'dart:math';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:yaml/yaml.dart';
 
 /// A text based reporting system
@@ -236,6 +236,10 @@ class DotReport {
   void addLines({int lines = 1}) {
     bytes.addAll(encoder.encode(endOfRow * lines));
   }
+
+  /// convert bytes buffer to an Uint8List
+  ///
+  Uint8List get list => Uint8List.fromList(bytes);
 }
 
 typedef ReportCallback = Future<void> Function(DotReport rep);
