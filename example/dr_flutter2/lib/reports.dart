@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:expressions/expressions.dart';
 import 'package:dot_report/dot_report.dart';
 import 'package:flutter_bluetooth_printer/flutter_bluetooth_printer.dart';
+import 'package:image/image.dart' as img;
 
 import 'utils.dart';
 import 'main.dart';
@@ -208,15 +210,13 @@ Future<void> fixedSizeReport(String printer) async {
   );
 }
 
-/*
-
 /// this report mix images, barcodes and qr codes whit DotReport.
 /// This don't work with fixed height forms because the system can't
 /// determinate the height of images.
 ///
-/// To print images we use the excellent https://pub.dev/packages/esc_pos_utils
-/// lib which has some report capabilities, but here we use only image and
-/// barcodes.
+/// To print images, barcodes and qr codes we use the excellent
+/// https://pub.dev/packages/esc_pos_utils which is already included in
+/// https://pub.dev/packages/flutter_bluetooth_printer library
 ///
 /// The printer can print only black or white pixels so color images are
 /// converted in black and white, for better results we advice to convert
@@ -230,9 +230,7 @@ Future<void> mixImagesReport(String printer) async {
   final profile = await CapabilityProfile.load();
   final generator = Generator(PaperSize.mm80, profile);
 
-  await connectPrinter(printer);
-
-  Future<void> _before(rep) async {
+  Future<void> before(rep) async {
     rep.context.addAll({
       'doc_num': 123,
       'doc_date': DateTime.now(),
@@ -241,7 +239,7 @@ Future<void> mixImagesReport(String printer) async {
     });
   }
 
-  Future<void> _beforeBand(band) async {
+  Future<void> beforeBand(band) async {
     if (band.name == 'band' || band.name == 'description') {
       band.rep.context.addAll(curRow);
     }
@@ -250,7 +248,7 @@ Future<void> mixImagesReport(String printer) async {
     }
   }
 
-  Future<void> _afterBand(band) async {
+  Future<void> afterBand(band) async {
     if (band.name == 'band') {
       band.rep.context['total'] +=
           band.rep.context['qt'] * band.rep.context['price'];
@@ -260,9 +258,9 @@ Future<void> mixImagesReport(String printer) async {
   // the instance of DotReport class or derived
   rep = DotReportEval(
     await loadScripts('mix'),
-    onBefore: (rep) => _before(rep),
-    onBeforeBand: (band) => _beforeBand(band),
-    onAfterBand: (band) => _afterBand(band),
+    onBefore: (rep) => before(rep),
+    onBeforeBand: (band) => beforeBand(band),
+    onAfterBand: (band) => afterBand(band),
   );
 
   // start printing an image
@@ -284,7 +282,7 @@ Future<void> mixImagesReport(String printer) async {
   curRow = data[3];
   await rep.print('band');
 
-  // here a qrcode
+  // here a qr code
   rep.addLines();
   rep.bytes += generator.qrcode('dot_report is fun!');
   rep.bytes += resetAlignment(generator);
@@ -294,10 +292,13 @@ Future<void> mixImagesReport(String printer) async {
 
   // at the end of report we print another image
   rep.bytes += await imageFromAssets(generator, 'assets/images/signature.png');
-  rep.bytes += resetAlignment(generator);
+  // rep.bytes += resetAlignment(generator);
   rep.addLines(lines: 3);
-
-  await BluetoothThermalPrinter.writeBytes(rep.bytes);
+  FlutterBluetoothPrinter.printBytes(
+    address: currentPrinter,
+    data: rep.list,
+    keepConnected: false,
+  );
 }
 
 /// load an image from assets and convert the image to list of bytes ready to
@@ -315,8 +316,6 @@ Future<List<int>> imageFromAssets(Generator generator, String fileName) async {
 ///
 List<int> resetAlignment(Generator generator) =>
     generator.setStyles(PosStyles().copyWith(align: PosAlign.left));
-
- */
 
 /// class derived from DotReport configured to use ExpressionEvaluator to eval
 /// expressions contained within the report. It also configure the encoder

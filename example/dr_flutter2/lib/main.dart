@@ -96,6 +96,16 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Fixed size report'),
             ),
+            ElevatedButton(
+              onPressed: () async {
+                if (currentPrinter == '') {
+                  noPrinter();
+                } else {
+                  await mixImagesReport(currentPrinter);
+                }
+              },
+              child: const Text('Mix report with images'),
+            ),
           ],
         ),
       ),
